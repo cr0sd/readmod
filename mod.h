@@ -9,6 +9,7 @@
 #define NUMBER_OF_PATTERNS 31
 
 // Struct to contain MOD file data per SAMPLE
+// NOTE: Due to Amiga roots, .MOD files use big-endian!
 typedef struct MODSAMPLE
 {
 	const uint8_t name[22];

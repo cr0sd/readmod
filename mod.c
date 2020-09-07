@@ -34,7 +34,7 @@ MOD*mod_open(const char*fn)
 		mod->patterns[i]=(uint8_t*)malloc(1024);
 		fread(mod->patterns[i],1,1024,file);
 
-		if(!mod->patterns[i] && mod->patterns)
+		if(!mod->patterns[i])
 		{
 			printf("error: failed to allocate memory for pattern #%02x\n",
 					(uint32_t)i);
@@ -46,22 +46,24 @@ MOD*mod_open(const char*fn)
 	// Allocate, read in sample data
 	for(size_t i=0;i<31;++i)
 	{
-		if(mod->samples[i].samplelength>0)
+		size_t samplelength=bswap_16(mod->samples[i].samplelength)*2;
+
+		if(samplelength*2>0)
 		{
 			// Allocate memory, verify
-			mod->sample_data[i]=(uint16_t*)malloc(mod->samples[i].samplelength);
+			mod->sample_data[i]=(uint16_t*)malloc(samplelength);
 
 			if(!mod->sample_data[i])
 			{
 				printf("error: failed to allocate memory for sample #%02x (length: %lu)\n",
 						(uint32_t)i,
-						(size_t)mod->samples[i].samplelength);
+						(size_t)samplelength);
 				mod_delete(mod);
 				return NULL;
 			}
 
 			// Read sample into new memory
-			fread(mod->sample_data[i],1,mod->samples[i].samplelength,file);
+			fread(mod->sample_data[i],1,samplelength,file);
 		}
 		else
 			mod->sample_data[i]=NULL;

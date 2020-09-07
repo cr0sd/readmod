@@ -77,13 +77,15 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 
 void export_mod_samples(readmod_state*s,const char*fn)
 {
-	int fd=open(fn,O_CREAT|O_RDWR,0700);
-	WAVE wav=wav_create(8287,16,1,s->mod->samples[0].samplelength);
+	int fd=open(fn,O_CREAT|O_RDWR,0600);
+	size_t n_bytes=bswap_16(s->mod->samples[0].samplelength)*2;
+	WAVE wav=wav_create(8287,16,1,n_bytes);
+
 	if(fd>0)
 	{
-		printf("writing %u bytes to %x\n",s->mod->samples[0].samplelength,fd);
+		printf("writing %lu bytes to %x\n",n_bytes,fd);
 		write(fd,&wav,sizeof(WAVE));
-		write(fd,s->mod->sample_data[0],s->mod->samples[0].samplelength);
+		write(fd,s->mod->sample_data[0],n_bytes);
 		close(fd);
 	}
 	else
