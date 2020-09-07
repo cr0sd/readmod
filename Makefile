@@ -1,6 +1,6 @@
 CFLAGS= -Wfatal-errors
 LDFLAGS=
-OBJS= main.o mod.o
+OBJS= main.o mod.o wav.o
 
 all: readmod
 readmod: $(OBJS)

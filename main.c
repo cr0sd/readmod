@@ -4,16 +4,49 @@
 #include<stdlib.h>
 #include<stdint.h>
 #include<string.h>
+#include"readmod.h"
 #include"mod.h"
-
-#define HELPMSG "usage: readmod [--help] [-x] MODFILE"
+#include"wav.h"
 
 int main(int argc,char**argv)
 {
-	MOD*mod;
-	int export_samples=0;
-	int found_modfile=0;
+	readmod_state s={0};
 
+	// Parse args
+	parse_argv(argc,argv,&s);
+
+	// No .MOD provided, exit
+	if(!s.found_modfile)
+	{
+		puts(HELPMSG);
+		goto quit;
+	}
+
+	// Print mod contents
+	mod_print(s.mod);
+
+	// Export if requested
+	if(s.export_samples)
+	{
+		char*fn=malloc(strlen(s.modfilename)+23);
+		if(!fn)
+		{
+			puts("failed to allocate data for sample export");
+			goto quit;
+		}
+
+		sprintf(fn,"%s_samples.wav",s.modfilename);
+		export_mod_samples(&s,fn);
+		free(fn);
+	}
+
+	// Free resources
+quit:
+	mod_delete(s.mod);
+}
+
+void parse_argv(int argc,char**argv,readmod_state*s)
+{
 	// Parse arguments
 	if(argc<2)puts(HELPMSG),exit(0);
 	for(size_t i=1;i<argc;++i)
@@ -28,38 +61,31 @@ int main(int argc,char**argv)
 
 		// Extract samples from MODFILE
 		else if(strcmp(argv[i],"-x")==0)
-			export_samples=1;
+			s->export_samples=1;
 
 		// Open MOD file
 		else
 		{
-			mod=mod_open(argv[i]);
-			if(!mod)exit(2);
-			found_modfile=1;
+			s->mod=mod_open(argv[i]);
+			if(!s->mod)exit(2);
+			s->found_modfile=1;
+			s->modfilename=argv[i];
 		}
 
 	}
+}
 
-	// No .MOD provided, exit
-	if(!found_modfile)puts(HELPMSG),exit(1);
-
-	// Print mod contents
-	mod_print(mod);
-
-	// Test loaded sample
-	if(export_samples)
+void export_mod_samples(readmod_state*s,const char*fn)
+{
+	int fd=open(fn,O_CREAT|O_RDWR,0700);
+	WAVE wav=wav_create(8287,16,1,s->mod->samples[0].samplelength);
+	if(fd>0)
 	{
-		int fd=open("file.mod",O_CREAT|O_RDWR,0700);
-		if(fd>0)
-		{
-			printf("writing %lu bytes to %x\n",mod->samples[0].samplelength,fd);
-			write(fd,mod->sample_data[0],mod->samples[0].samplelength);
-			close(fd);
-		}
-		else
-			puts("failed to open 'file.mod'");
+		printf("writing %u bytes to %x\n",s->mod->samples[0].samplelength,fd);
+		write(fd,&wav,sizeof(WAVE));
+		write(fd,s->mod->sample_data[0],s->mod->samples[0].samplelength);
+		close(fd);
 	}
-
-	// Free resources
-	mod_delete(mod);
+	else
+		printf("failed to open '%s'",fn);
 }
