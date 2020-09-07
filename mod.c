@@ -48,7 +48,7 @@ MOD*mod_open(const char*fn)
 	{
 		size_t samplelength=bswap_16(mod->samples[i].samplelength)*2;
 
-		if(samplelength*2>0)
+		if(samplelength>1)
 		{
 			// Allocate memory, verify
 			mod->sample_data[i]=(uint16_t*)malloc(samplelength);
@@ -88,7 +88,7 @@ void mod_print(MOD*mod)
 	for(int i=0,drawbar=1;i<NUMBER_OF_PATTERNS;++i)
 	{
 		// Skip samples that are 'empty' (samplelength == 0)
-		if(mod->samples[i].samplelength==0)
+		if(mod->samples[i].volume==0||mod->samples[i].samplelength<2)
 		{
 			drawbar&&puts("--------"),drawbar=0;	// Draw one bar until next non-empty sample
 			continue;

@@ -23,7 +23,8 @@ int main(int argc,char**argv)
 	}
 
 	// Print mod contents
-	mod_print(s.mod);
+	if(!s.silent)
+		mod_print(s.mod);
 
 	// Export if requested
 	if(s.export_samples)
@@ -59,9 +60,39 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 			exit(0);
 		}
 
-		// Extract samples from MODFILE
-		else if(strcmp(argv[i],"-x")==0)
-			s->export_samples=1;
+		// Parse short options
+		else if(argv[i][0]=='-')
+		{
+			for(size_t j=1;;++j)
+			{
+
+				// End of short options
+				if(!argv[i][j])
+				{
+					if(j==1)
+						puts("error: no options supplied to '-'"),
+						mod_delete(s->mod),
+						exit(3);
+					break;
+				}
+
+				// Extract samples from MODFILE
+				if(argv[i][j]=='x')
+					s->export_samples=1;
+
+				// Don't print mod info
+				else if(argv[i][j]=='n')
+					s->silent=1;
+
+				else
+				{
+					printf("error: unrecognized option '%c'\n",
+							argv[i][j]);
+					mod_delete(s->mod);
+					exit(2);
+				}
+			}
+		}
 
 		// Open MOD file
 		else
@@ -78,14 +109,15 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 void export_mod_samples(readmod_state*s,const char*fn)
 {
 	int fd=open(fn,O_CREAT|O_RDWR,0600);
-	size_t n_bytes=bswap_16(s->mod->samples[0].samplelength)*2;
+	const size_t which_sample=0;
+	size_t n_bytes=bswap_16(s->mod->samples[which_sample].samplelength)*2;
 	WAVE wav=wav_create(8287,16,1,n_bytes);
 
 	if(fd>0)
 	{
-		printf("writing %lu bytes to %x\n",n_bytes,fd);
+		printf("writing %lu bytes to '%s'\n",n_bytes,fn);
 		write(fd,&wav,sizeof(WAVE));
-		write(fd,s->mod->sample_data[0],n_bytes);
+		write(fd,s->mod->sample_data[which_sample],n_bytes);
 		close(fd);
 	}
 	else

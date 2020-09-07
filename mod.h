@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-// If using Linux
+// Define bswap_16 to convert from big-endian
 #define bswap_16 __bswap_16
 
 #define NUMBER_OF_PATTERNS 31
