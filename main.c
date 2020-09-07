@@ -15,8 +15,13 @@ int main(int argc,char**argv)
 	// Parse args
 	parse_argv(argc,argv,&s);
 
-	// No .MOD provided, exit
-	if(!s.found_modfile)
+	// Open .MOD file or exit
+	if(s.found_modfile)
+	{
+		s.mod=mod_open(s.modfilename);
+		if(!s.mod)exit(2);
+	}
+	else
 	{
 		puts(HELPMSG);
 		goto quit;
@@ -37,7 +42,7 @@ int main(int argc,char**argv)
 		}
 
 		sprintf(fn,"%s_samples.wav",s.modfilename);
-		export_mod_samples(&s,fn);
+		export_mod_samples(&s,fn,3);
 		free(fn);
 	}
 
@@ -97,8 +102,6 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 		// Open MOD file
 		else
 		{
-			s->mod=mod_open(argv[i]);
-			if(!s->mod)exit(2);
 			s->found_modfile=1;
 			s->modfilename=argv[i];
 		}
@@ -106,13 +109,13 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 	}
 }
 
-void export_mod_samples(readmod_state*s,const char*fn)
+void export_mod_samples(readmod_state*s,const char*fn,size_t which_sample)
 {
 	int fd=open(fn,O_CREAT|O_RDWR,0600);
-	const size_t which_sample=0;
 	size_t n_bytes=bswap_16(s->mod->samples[which_sample].samplelength)*2;
 	WAVE wav=wav_create(8287,16,1,n_bytes);
 
+	// Write sample #1 (0) to file
 	if(fd>0)
 	{
 		printf("writing %lu bytes to '%s'\n",n_bytes,fn);

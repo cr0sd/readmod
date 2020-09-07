@@ -18,4 +18,4 @@ typedef struct readmod_state
 void parse_argv(int argc,char**argv,readmod_state*s);
 
 // Export .MOD samples to file fn
-void export_mod_samples(readmod_state*s,const char*fn);
+void export_mod_samples(readmod_state*s,const char*fn,size_t which_sample);

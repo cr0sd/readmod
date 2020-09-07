@@ -18,7 +18,8 @@ MOD*mod_open(const char*fn)
 	mod=malloc(sizeof(MOD));
 
 	// Read file
-	fread(mod,sizeof(MOD),1,file);
+	fread(mod,136+NUMBER_OF_PATTERNS*sizeof(MODSAMPLE),
+			1,file);
 	for(size_t i=0;i<32;++i)
 		mod->sample_data[i]=NULL;	// Initialize pointers to NULL
 
