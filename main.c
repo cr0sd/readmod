@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<unistd.h>
 #include<fcntl.h>
+#include<sys/stat.h>
 #include<stdlib.h>
 #include<stdint.h>
 #include<string.h>
@@ -41,8 +42,17 @@ int main(int argc,char**argv)
 			goto quit;
 		}
 
-		sprintf(fn,"%s_samples.wav",s.modfilename);
-		export_mod_samples(&s,fn,3);
+		// Create directory and export sample WAV files
+		sprintf(fn,"%s_samples.d",s.modfilename);
+		mkdir(fn,0755);
+		for(size_t i=0;i<31;++i)
+		{
+			if(s.mod->samples[i].samplelength>1 && s.mod->samples[i].volume>0)
+			{
+			sprintf(fn,"%s_samples.d/%s_samples%lu.wav",s.modfilename,s.modfilename,i);
+			export_mod_samples(&s,fn,i);
+			}
+		}
 		free(fn);
 	}
 
