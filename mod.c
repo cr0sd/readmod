@@ -31,7 +31,7 @@ MOD*mod_open(const char*fn)
 	// Allocate, read in pattern data
 	for(size_t i=0;i<highest_pattern+1;++i)
 	{
-		mod->patterns[i]=(uint8_t*)malloc(1024);
+		mod->patterns[i]=(MODPATTERN*)malloc(sizeof(MODPATTERN));
 		fread(mod->patterns[i],1,1024,file);
 
 		if(!mod->patterns[i])
@@ -76,7 +76,7 @@ MOD*mod_open(const char*fn)
 	return mod;
 }
 
-void mod_print(MOD*mod)
+void mod_print(MOD*mod,int print_patterns)
 {
 	int highest_pattern;
 	// PRINT DATA -----
@@ -126,9 +126,30 @@ void mod_print(MOD*mod)
 	}
 	printf("Number of patterns: %d (highest: %02x)\n",highest_pattern+1,highest_pattern);
 
-	//// Read sample data meaningfully
-	//for(size_t i=0;i<31;++i)
-		//fwrite(mod->sample_data[i],16,mod->samples[i].samplelength,stdout);
+	// Print pattern/channel data
+	if(print_patterns)
+	{
+		puts("\nPattern data:");
+		for(size_t i=0;i<1;++i)
+		{
+			printf("Pattern %02lx:\n",i);
+			puts("sm fq fx    sm fq fx    sm fq fx    sm fq fx");
+			for(size_t j=0;j<32;++j)
+			{
+				for(size_t k=0;k<4;++k)
+				{
+					printf("%.2u %.2u %.3x",
+							mod->patterns[i]->data.channel_data_bits[j].smp_high<<4|
+							mod->patterns[i]->data.channel_data_bits[j].smp_low,
+							mod->patterns[i]->data.channel_data_bits[j].period,
+							mod->patterns[i]->data.channel_data_bits[j].effect
+							);
+					if(k<3)printf(" | ");
+				}
+				puts("");
+			}
+		}
+	}
 
 	// DONE PRINTING DATA -----
 }

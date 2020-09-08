@@ -30,7 +30,7 @@ int main(int argc,char**argv)
 
 	// Print mod contents
 	if(!s.silent)
-		mod_print(s.mod);
+		mod_print(s.mod,s.print_patterns);
 
 	// Export if requested
 	if(s.export_samples)
@@ -92,6 +92,10 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 				// Don't print mod info
 				else if(argv[i][j]=='n')
 					s->silent=1;
+
+				// Print pattern/channel data
+				else if(argv[i][j]=='p')
+					s->print_patterns=1;
 
 				else
 				{
