@@ -97,6 +97,11 @@ void parse_argv(int argc,char**argv,readmod_state*s)
 				else if(argv[i][j]=='p')
 					s->print_patterns=1;
 
+				// Help
+				else if(argv[i][j]=='h')
+					puts(HELPMSG),
+					exit(0);
+
 				else
 				{
 					printf("error: unrecognized option '%c'\n",

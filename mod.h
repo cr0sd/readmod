@@ -5,6 +5,7 @@
 
 // Define bswap_16 to convert from big-endian
 #define bswap_16 __bswap_16
+#define bswap_32 __bswap_32
 
 #define NUMBER_OF_PATTERNS 31
 #define NUMBER_OF_SAMPLES 31
@@ -30,10 +31,10 @@ typedef struct MODPATTERN
 		const uint32_t channel_data[64*4];
 		struct
 		{
-			const int smp_high:4;
 			const int period:12;	// Note period or effect parameter
-			const int smp_low:4;
+			const int smp_high:4;
 			const int effect:12;
+			const int smp_low:4;
 		} channel_data_bits[64*4];
 	} data;
 } MODPATTERN;
@@ -48,7 +49,7 @@ typedef struct MOD
 	const uint8_t patterntable[128];					// Patterns
 	const uint8_t magic[4];								// M.K. Protracker Initials
 
-	MODPATTERN*patterns[NUMBER_OF_PATTERNS];								// Used to fill in pattern data (not as memory overlay)
+	MODPATTERN*patterns[100];							// Used to fill in pattern data (not as memory overlay)
 	uint16_t*sample_data[32];							// Same as ^^^ but for samples
 } MOD;
 

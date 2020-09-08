@@ -32,7 +32,6 @@ MOD*mod_open(const char*fn)
 	for(size_t i=0;i<highest_pattern+1;++i)
 	{
 		mod->patterns[i]=(MODPATTERN*)malloc(sizeof(MODPATTERN));
-		fread(mod->patterns[i],1,1024,file);
 
 		if(!mod->patterns[i])
 		{
@@ -41,6 +40,8 @@ MOD*mod_open(const char*fn)
 			mod_delete(mod);
 			return NULL;
 		}
+
+		fread(mod->patterns[i],1,sizeof(MODPATTERN),file);
 	}
 
 	// Allocate, read in sample data
@@ -129,23 +130,36 @@ void mod_print(MOD*mod,int print_patterns)
 	// Print pattern/channel data
 	if(print_patterns)
 	{
+
 		puts("\nPattern data:");
 		for(size_t i=0;i<1;++i)
 		{
+
 			printf("Pattern %02lx:\n",i);
-			puts("sm fq fx    sm fq fx    sm fq fx    sm fq fx");
-			for(size_t j=0;j<32;++j)
+			for(size_t k=0;k<4;++k)
 			{
+				printf("fq sm fx");
+				if(k<3)
+					printf("    ");
+			}
+			puts("");
+
+			// Print channel data for each division j of pattern i
+			for(size_t j=0;j<32;)
+			{
+
+				// TODO: This part isn't correct. Make it be more correct please.
 				for(size_t k=0;k<4;++k)
 				{
-					printf("%.2u %.2u %.3x",
-							mod->patterns[i]->data.channel_data_bits[j].smp_high<<4|
-							mod->patterns[i]->data.channel_data_bits[j].smp_low,
-							mod->patterns[i]->data.channel_data_bits[j].period,
-							mod->patterns[i]->data.channel_data_bits[j].effect
+					printf("%.2u %.2x %x",
+							((unsigned)(mod->patterns[i]->data.channel_data_bits[j+k].period))%100,
+							(mod->patterns[i]->data.channel_data_bits[j+k].smp_high<<4|
+							mod->patterns[i]->data.channel_data_bits[j+k].smp_low)&0xff,
+							bswap_16(mod->patterns[i]->data.channel_data_bits[j+k].effect&0xfff)
 							);
 					if(k<3)printf(" | ");
 				}
+				j+=4;
 				puts("");
 			}
 		}
