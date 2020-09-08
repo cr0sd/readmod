@@ -7,6 +7,7 @@
 #define bswap_16 __bswap_16
 
 #define NUMBER_OF_PATTERNS 31
+#define NUMBER_OF_SAMPLES 31
 
 // Struct to contain MOD file data per SAMPLE
 // NOTE: Due to Amiga roots, .MOD files use big-endian!
@@ -24,12 +25,12 @@ typedef struct MODSAMPLE
 typedef struct MOD
 {
 	const uint8_t name[20];							// Name of MOD
-	const MODSAMPLE samples[NUMBER_OF_PATTERNS];
+	const MODSAMPLE samples[NUMBER_OF_SAMPLES];
 	const uint8_t positions;						// Number of positions
 	const uint8_t restart;							// Ignored
 	const uint8_t patterntable[128];				// Patterns
 	const uint8_t magic[4];							// M.K. Protracker Initials
-	uint8_t*patterns[1024];							// Used to fill in pattern data (not as memory overlay)
+	uint8_t*patterns[128];							// Used to fill in pattern data (not as memory overlay)
 	uint16_t*sample_data[32];						// Same as ^^^ but for samples
 } MOD;
 

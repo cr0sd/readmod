@@ -35,25 +35,19 @@ int main(int argc,char**argv)
 	// Export if requested
 	if(s.export_samples)
 	{
-		char*fn=malloc(strlen(s.modfilename)+23);
-		if(!fn)
-		{
-			puts("failed to allocate data for sample export");
-			goto quit;
-		}
+		char fn[1024];
 
 		// Create directory and export sample WAV files
 		sprintf(fn,"%s_samples.d",s.modfilename);
 		mkdir(fn,0755);
-		for(size_t i=0;i<31;++i)
+		for(size_t i=0;i<NUMBER_OF_SAMPLES;++i)
 		{
 			if(s.mod->samples[i].samplelength>1 && s.mod->samples[i].volume>0)
 			{
-			sprintf(fn,"%s_samples.d/%s_samples%lu.wav",s.modfilename,s.modfilename,i);
-			export_mod_samples(&s,fn,i);
+				sprintf(fn,"%s_samples.d/%s_sample%lu.wav",s.modfilename,s.modfilename,i);
+				export_mod_samples(&s,fn,i);
 			}
 		}
-		free(fn);
 	}
 
 	// Free resources

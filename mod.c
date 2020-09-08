@@ -18,9 +18,8 @@ MOD*mod_open(const char*fn)
 	mod=malloc(sizeof(MOD));
 
 	// Read file
-	fread(mod,136+NUMBER_OF_PATTERNS*sizeof(MODSAMPLE),
-			1,file);
-	for(size_t i=0;i<32;++i)
+	fread(mod,154+NUMBER_OF_SAMPLES*sizeof(MODSAMPLE),1,file);
+	for(size_t i=0;i<NUMBER_OF_SAMPLES;++i)
 		mod->sample_data[i]=NULL;	// Initialize pointers to NULL
 
 	// Get highest_pattern
@@ -107,7 +106,7 @@ void mod_print(MOD*mod)
 	}
 
 	printf("Number song positions: %d\n",mod->positions);
-	printf("Magic number: '%.4s'\n",mod->magic);
+	printf("MOD file type: '%.4s'\n",mod->magic);
 
 	// Pattern table
 	puts("Pattern Table:");
