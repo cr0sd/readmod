@@ -55,7 +55,10 @@ typedef struct MOD
 MOD*mod_open(const char*fn);
 
 // Print MOD struct contents to stdout
-void mod_print(MOD*mod,int print_patterns);
+void mod_print(MOD*mod);
+
+// Print MOD patterns
+void mod_printpatterns(MOD*mod);
 
 // Delete, free MOD data
 void mod_delete(MOD*mod);

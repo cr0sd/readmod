@@ -30,7 +30,9 @@ int main(int argc,char**argv)
 
 	// Print mod contents
 	if(!s.silent)
-		mod_print(s.mod,s.print_patterns);
+		mod_print(s.mod);
+	if(s.print_patterns)
+		mod_printpatterns(s.mod);
 
 	// Export if requested
 	if(s.export_samples)

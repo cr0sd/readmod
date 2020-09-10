@@ -74,7 +74,7 @@ MOD*mod_open(const char*fn)
 	return mod;
 }
 
-void mod_print(MOD*mod,int print_patterns)
+void mod_print(MOD*mod)
 {
 	int highest_pattern;
 	// PRINT DATA -----
@@ -124,50 +124,50 @@ void mod_print(MOD*mod,int print_patterns)
 	}
 	printf("Number of patterns: %d (highest: %02x)\n",highest_pattern+1,highest_pattern);
 
+	// DONE PRINTING DATA -----
+}
+
+void mod_printpatterns(MOD*mod)
+{
+	size_t highest_pattern=mod_gethighestpattern(mod);
 	// Print pattern/channel data
-	if(print_patterns)
+	puts("\nPattern data:");
+	for(size_t i=0;i<highest_pattern;++i)
 	{
 
-		puts("\nPattern data:");
-		for(size_t i=0;i<highest_pattern;++i)
+		// Display pattern number
+		printf("Pattern %02lx:\n",i);
+		for(size_t k=0;k<4;++k)
+		{
+			printf("fq  sm fx");
+			if(k<3)
+				printf("    ");
+		}
+		puts("");
+
+		// Print channel data for each division j of pattern i
+		for(size_t j=0;j<4*64;)
 		{
 
-			// Display pattern number
-			printf("Pattern %02lx:\n",i);
+			// Print period, sample, and effect for this row for each channel
 			for(size_t k=0;k<4;++k)
 			{
-				printf("fq  sm fx");
-				if(k<3)
-					printf("    ");
+				uint32_t data=bswap_32(mod->patterns[i]->channel_data[j+k]);
+
+				//printf("%.3u %02x %03x",
+				printf("%s %02x %03x",
+						mod_getnotename((data&0x0fff0000)>>16),
+						//(data&0x0fff0000)>>16,
+						(((data&0xf0000000)>>12)>>12|(data&0xf000)>>12),
+						data&0xfff
+						//data
+						);
+				if(k<3)printf(" | ");
 			}
+			j+=4;
 			puts("");
-
-			// Print channel data for each division j of pattern i
-			for(size_t j=0;j<4*64;)
-			{
-
-				// Print period, sample, and effect for this row for each channel
-				for(size_t k=0;k<4;++k)
-				{
-					uint32_t data=bswap_32(mod->patterns[i]->channel_data[j+k]);
-
-					//printf("%.3u %02x %03x",
-					printf("%s %02x %03x",
-							mod_getnotename((data&0x0fff0000)>>16),
-							//(data&0x0fff0000)>>16,
-							(((data&0xf0000000)>>12)>>12|(data&0xf000)>>12),
-							data&0xfff
-							//data
-							);
-					if(k<3)printf(" | ");
-				}
-				j+=4;
-				puts("");
-			}
 		}
 	}
-
-	// DONE PRINTING DATA -----
 }
 
 size_t mod_gethighestpattern(MOD*mod)
