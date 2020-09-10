@@ -23,10 +23,7 @@ MOD*mod_open(const char*fn)
 		mod->sample_data[i]=NULL;	// Initialize pointers to NULL
 
 	// Get highest_pattern
-	highest_pattern=mod->patterntable[0];
-	for(size_t i=0;i<mod->positions;++i)
-		if(highest_pattern<mod->patterntable[i])
-			highest_pattern=mod->patterntable[i];
+	highest_pattern=mod_gethighestpattern(mod);
 
 	// Allocate, read in pattern data
 	for(size_t i=0;i<highest_pattern+1;++i)
@@ -132,32 +129,35 @@ void mod_print(MOD*mod,int print_patterns)
 	{
 
 		puts("\nPattern data:");
-		for(size_t i=0;i<1;++i)
+		for(size_t i=0;i<highest_pattern;++i)
 		{
 
+			// Display pattern number
 			printf("Pattern %02lx:\n",i);
 			for(size_t k=0;k<4;++k)
 			{
-				printf("fq sm fx");
+				printf("fq  sm fx");
 				if(k<3)
 					printf("    ");
 			}
 			puts("");
 
 			// Print channel data for each division j of pattern i
-			for(size_t j=0;j<32;)
+			for(size_t j=0;j<4*64;)
 			{
 
-				// TODO: This part isn't correct. Make it be more correct please.
+				// Print period, sample, and effect for this row for each channel
 				for(size_t k=0;k<4;++k)
 				{
 					uint32_t data=bswap_32(mod->patterns[i]->channel_data[j+k]);
 
-					printf("%.2u %02x %03x [%08x]",
-							(data&0x0fff0000)>>16,
+					//printf("%.3u %02x %03x",
+					printf("%s %02x %03x",
+							mod_getnotename((data&0x0fff0000)>>16),
+							//(data&0x0fff0000)>>16,
 							(((data&0xf0000000)>>12)>>12|(data&0xf000)>>12),
-							data&0xfff,
-							bswap_32(mod->patterns[i]->channel_data[j+k])
+							data&0xfff
+							//data
 							);
 					if(k<3)printf(" | ");
 				}
@@ -168,6 +168,18 @@ void mod_print(MOD*mod,int print_patterns)
 	}
 
 	// DONE PRINTING DATA -----
+}
+
+size_t mod_gethighestpattern(MOD*mod)
+{ 
+	size_t highest_pattern;
+
+	// Get highest_pattern
+	highest_pattern=mod->patterntable[0];
+	for(size_t i=0;i<mod->positions;++i)
+		if(highest_pattern<mod->patterntable[i])
+			highest_pattern=mod->patterntable[i];
+	return highest_pattern;
 }
 
 void mod_delete(MOD*mod)
@@ -192,4 +204,33 @@ void mod_delete(MOD*mod)
 		if(mod->sample_data[i])
 			free(mod->sample_data[i]);
 	free(mod);
+}
+
+char*mod_getnotename(uint16_t note)
+{
+	static uint16_t periods[]={
+	//C    C#   D    D#   E    F    F#   G    G#   A    A#   B
+	1712,1616,1525,1440,1357,1281,1209,1141,1077,1017, 961, 907, //0
+	 856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453, //1
+	 428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226, //2
+	 214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113, //3
+	 107, 101,  95,  90,  85,  80,  76,  71,  67,  64,  60,  57, //4
+	};
+	static char*names[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
+	static char name[16];
+	int which=-1;
+
+	if(note==0)return "---";
+
+	// Find which one
+	for(int i=0;i<sizeof(periods)/2;++i)
+		if(periods[i]==note)
+			which=i;
+	if(which<0)return "NA  ";
+
+	// Return
+	int wrote;
+	wrote=sprintf(name,"%s%s%u",names[which%12],strlen(names[which%12])<2?"-":"",which/12);
+	if(wrote<3)strcat(name," ");
+	return name;
 }

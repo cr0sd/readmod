@@ -2,6 +2,7 @@
 #include<stdint.h>
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 // Define bswap_16 to convert from big-endian
 #define bswap_16 __bswap_16
@@ -58,3 +59,8 @@ void mod_print(MOD*mod,int print_patterns);
 
 // Delete, free MOD data
 void mod_delete(MOD*mod);
+
+// Get highest mentioned pattern (max patterns)
+size_t mod_gethighestpattern(MOD*mod);
+
+char*mod_getnotename(uint16_t note);
