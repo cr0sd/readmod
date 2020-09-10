@@ -151,11 +151,13 @@ void mod_print(MOD*mod,int print_patterns)
 				// TODO: This part isn't correct. Make it be more correct please.
 				for(size_t k=0;k<4;++k)
 				{
-					printf("%.2u %.2x %x",
-							((unsigned)(mod->patterns[i]->data.channel_data_bits[j+k].period))%100,
-							(mod->patterns[i]->data.channel_data_bits[j+k].smp_high<<4|
-							mod->patterns[i]->data.channel_data_bits[j+k].smp_low)&0xff,
-							bswap_16(mod->patterns[i]->data.channel_data_bits[j+k].effect&0xfff)
+					uint32_t data=bswap_32(mod->patterns[i]->channel_data[j+k]);
+
+					printf("%.2u %02x %03x [%08x]",
+							(data&0x0fff0000)>>16,
+							(((data&0xf0000000)>>12)>>12|(data&0xf000)>>12),
+							data&0xfff,
+							bswap_32(mod->patterns[i]->channel_data[j+k])
 							);
 					if(k<3)printf(" | ");
 				}

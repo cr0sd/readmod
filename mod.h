@@ -18,25 +18,22 @@ typedef struct MODSAMPLE
 	const uint16_t samplelength;		// NOTE: .MOD file playback samplerate is 8287 Hz
 	const uint8_t finetune;
 	const uint8_t volume;
-	const uint16_t repeatstart;;
+	const uint16_t repeatstart;
 	const uint16_t repeatlength;
 } MODSAMPLE;
 
 // Struct to contain MOD file data per PATTERN
 // NOTE: Contains 4 bytes * 64 divisions * 4 channels
-typedef struct MODPATTERN
+typedef union MODPATTERN
 {
-	union
+	const uint32_t channel_data[64*4];
+	struct
 	{
-		const uint32_t channel_data[64*4];
-		struct
-		{
-			const int period:12;	// Note period or effect parameter
-			const int smp_high:4;
-			const int effect:12;
-			const int smp_low:4;
-		} channel_data_bits[64*4];
-	} data;
+		const int smp_high:4;
+		const int period:12;	// Note period or effect parameter
+		const int smp_low:4;
+		const int effect:12;
+	} channel_data_bits[64*4];
 } MODPATTERN;
 
 // Struct to contain MOD file information
