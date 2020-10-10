@@ -2,7 +2,7 @@
 #include"mod.h"
 #include"wav.h"
 
-#define HELPMSG "usage: readmod [--help] [-xnph] MODFILE"
+#define HELPMSG "usage: readmod [--help] [-hnpx] MODFILE"
 
 // Struct to contain program data
 typedef struct readmod_state

@@ -44,7 +44,7 @@ MOD*mod_open(const char*fn)
 	// Allocate, read in sample data
 	for(size_t i=0;i<31;++i)
 	{
-		size_t samplelength=bswap_16(mod->samples[i].samplelength)*2;
+		size_t samplelength=bswap_16(mod->samples[i].samplelength)*sizeof(int16_t);
 
 		if(samplelength>1)
 		{
@@ -132,7 +132,7 @@ void mod_printpatterns(MOD*mod)
 	size_t highest_pattern=mod_gethighestpattern(mod);
 	// Print pattern/channel data
 	puts("\nPattern data:");
-	for(size_t i=0;i<highest_pattern;++i)
+	for(size_t i=0;i<=highest_pattern;++i)
 	{
 
 		// Display pattern number

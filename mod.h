@@ -66,4 +66,5 @@ void mod_delete(MOD*mod);
 // Get highest mentioned pattern (max patterns)
 size_t mod_gethighestpattern(MOD*mod);
 
+// Convert Amiga frequency value (uint16_t) to name (e.g., 113 --> "B-3")
 char*mod_getnotename(uint16_t note);
